@@ -18,6 +18,12 @@ class AppConfig:
 
             self.APP_PROFILE = os.getenv("APP_PROFILE") == "True"
             self.EXCLUDED_PATH = os.getenv("EXCLUDED_PATH", "/tmp")
+            self.ACTIVEMQ_HOST = os.getenv("ACTIVEMQ_HOST")
+            self.ACTIVEMQ_PORT = os.getenv("ACTIVEMQ_PORT")
+            self.ACTIVEMQ_USER = os.getenv("ACTIVEMQ_USER")
+            self.ACTIVEMQ_PASSCODE = os.getenv("ACTIVEMQ_PASSCODE")
+            self.AQ_DEFAULT_QUEUE_SUB = os.getenv("AQ_DEFAULT_QUEUE_CONSUMER", "sub_default_queue")
+            self.AQ_DEFAULT_QUEUE_PUB = os.getenv("AQ_DEFAULT_QUEUE", "pub_default_queue")
 
         else:
             raise Exception("You cannot create another AppConfig class")
