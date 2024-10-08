@@ -23,10 +23,10 @@ class AppConfig:
             self.ACTIVEMQ_USER = os.getenv("ACTIVEMQ_USER", "artemis")
             self.ACTIVEMQ_PASSCODE = os.getenv("ACTIVEMQ_PASSCODE", "artemis")
             self.AQ_DEFAULT_QUEUE_SUB = os.getenv(
-                "AQ_DEFAULT_QUEUE_CONSUMER", "sub_default_queue"
+                "AQ_DEFAULT_QUEUE_CONSUMER", "queue_begin_scrape"
             )
             self.AQ_DEFAULT_QUEUE_PUB = os.getenv(
-                "AQ_DEFAULT_QUEUE", "pub_default_queue"
+                "AQ_DEFAULT_QUEUE", "queue_scrape_update"
             )
 
         else:

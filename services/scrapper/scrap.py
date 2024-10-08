@@ -44,6 +44,7 @@ async def scrap_the_website(url: str = ""):
                     txt_filename = filepath + _l.hostname + ".txt"
 
                 await scrape_page(browser, link, txt_filename)
+                ic("scarped " + link)
 
         await browser.close()
 
