@@ -4,19 +4,19 @@ import time
 from typing import Union
 import stomp
 
+from config import AppConfig
+
+config = AppConfig.get_config()
+
 
 class ActiveMQPublisher(stomp.ConnectionListener):
     __instance__ = None
-    activemq_conn = stomp.Connection(
-        host_and_ports=
-        [(os.getenv("ACTIVEMQ_HOST", "127.0.0.1"),
-          int(os.getenv("ACTIVEMQ_PORT", 61613)))]
-    )
+    activemq_conn = stomp.Connection([(config.ACTIVEMQ_HOST, config.ACTIVEMQ_PORT)])
 
     def __init__(self):
         """Constructor."""
 
-        self.activemq_conn.set_listener('', self)
+        self.activemq_conn.set_listener("", self)
         if ActiveMQPublisher.__instance__ is None:
             ActiveMQPublisher.__instance__ = self
             self.default_queue = os.getenv("AQ_DEFAULT_QUEUE_PUB")
@@ -27,11 +27,15 @@ class ActiveMQPublisher(stomp.ConnectionListener):
         message = json.dumps(msg, indent=2, ensure_ascii=False)
 
         self.ensure_connection()
-        self.activemq_conn.send(body=message,
-                                destination=f'/queue/{routing_key}',
-                                headers={'persistent': 'true',
-                                         'routing_key': routing_key,
-                                         'content_type': 'application/json'})
+        self.activemq_conn.send(
+            body=message,
+            destination=routing_key,
+            headers={
+                "persistent": "true",
+                "routing_key": routing_key,
+                "content_type": "application/json",
+            },
+        )
 
         print(f"published message on---> {routing_key}")
         time.sleep(2)
@@ -39,9 +43,9 @@ class ActiveMQPublisher(stomp.ConnectionListener):
 
     def ensure_connection(self):
         if not self.activemq_conn.is_connected():
-            self.activemq_conn.connect(os.getenv("ACTIVEMQ_USER", "admin"),
-                                       os.getenv("ACTIVEMQ_PASSCODE", "admin"),
-                                       wait=True)
+            self.activemq_conn.connect(
+                config.ACTIVEMQ_USER, config.ACTIVEMQ_PASSCODE, wait=True
+            )
 
     @staticmethod
     def get_mq_connection() -> "ActiveMQPublisher":
