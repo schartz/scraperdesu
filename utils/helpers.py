@@ -1,7 +1,8 @@
 from itertools import islice
+from typing import Iterable
 
 
-def loop_batched(iterable, n):
+def loop_batched(iterable: Iterable, n: int = 5):
     """Batches iterable data into lists of length n.
 
     This function takes an iterable and divides it into batches of length `n`.
@@ -21,6 +22,3 @@ def loop_batched(iterable, n):
     it = iter(iterable)
     while batch := list(islice(it, n)):
         yield batch
-
-
-resumes_urls_list = []

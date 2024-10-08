@@ -1,29 +1,28 @@
-import os
 import stomp
 
-import config
+from config import AppConfig
 
-config = config.AppConfig.get_config()
+
+config = AppConfig.get_config()
 
 
 class Listener(stomp.ConnectionListener):
     def __init__(self, conn):
         self.conn = conn
 
-    def on_error(self, headers, message):
-        print('received an error "%s"' % message)
+    def on_error(self, frame):
+        print('received an error "%s"' % frame)
 
-    def on_message(self, headers, message):
-        print('received a message "%s"' % message)
+    def on_message(self, frame):
+        print('received a message "%s"' % frame)
 
     def on_disconnected(self):
         self.conn.connect(config.ACTIVEMQ_USER, config.ACTIVEMQ_PASSCODE, wait=True)
         self.conn.subscribe(
-            destination=f"/queue/" + config.AQ_DEFAULT_QUEUE_SUB,
+            destination=f"/queue/{config.AQ_DEFAULT_QUEUE_SUB}",
             id="1",
             ack="auto",
-            headers={"persistent": "true",
-                     'routing_key': config.AQ_DEFAULT_QUEUE_SUB},
+            headers={"persistent": "true", "routing_key": config.AQ_DEFAULT_QUEUE_SUB},
         )
 
 
@@ -48,11 +47,10 @@ class MessageBroker:
 
     def subscribe_queue(self):
         self.connection.subscribe(
-            destination=f"/queue/" + config.AQ_DEFAULT_QUEUE_SUB,
+            destination=f"/queue/{config.AQ_DEFAULT_QUEUE_SUB}",
             id="1",
             ack="auto",
-            headers={"persistent": "true",
-                     'routing_key': config.AQ_DEFAULT_QUEUE_SUB},
+            headers={"persistent": "true", "routing_key": config.AQ_DEFAULT_QUEUE_SUB},
         )
 
     @staticmethod
@@ -60,4 +58,4 @@ class MessageBroker:
         """Static method to fetch the current instance."""
         if not MessageBroker.__instance__:
             MessageBroker()
-        return MessageBroker.__instance__
+        return MessageBroker.__instance__  # pyright: ignore

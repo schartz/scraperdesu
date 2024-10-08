@@ -6,6 +6,7 @@ from urllib.parse import urlparse
 from playwright.async_api import async_playwright
 
 from config import AppConfig
+from utils.helpers import loop_batched
 
 config = AppConfig.get_config()
 
@@ -33,31 +34,31 @@ async def scrap_the_website(url: str = ""):
 
         link_urls = list(set(link_urls))
 
-        for link in link_urls:
-            
+        for link_batch in loop_batched(link_urls):
+            for link in link_batch:
+                _l = urlparse(link)
+                filepath = output_base + "/" + str(pathlib.Path(_l.path).stem)
+                txt_filename = filepath + "/" + str(pathlib.Path(_l.path).stem) + ".txt"
+
+                if str(pathlib.Path(_l.path).stem) == "":
+                    txt_filename = filepath + _l.hostname + ".txt"
+
+                await scrape_page(browser, link, txt_filename)
+
         await browser.close()
-async def scrape_page(browser, page_url: str, file_save_path: str, save_screenshot: bool = True):
+
+
+async def scrape_page(
+    browser, page_url: str, file_save_path: str, save_screenshot: bool = True
+):
     try:
         page = await browser.new_page()
-        await page.goto(page_url) 
+        await page.goto(page_url)
         a_handle = await page.evaluate_handle("document.body")
-        result_handle = await page.evaluate_handle(
-            "body => body.innerText", a_handle
-        )
+        result_handle = await page.evaluate_handle("body => body.innerText", a_handle)
         text = await result_handle.json_value()
-        _l = urlparse(page_url) 
-        # filepath = output_base + "/" + str(pathlib.Path(_l.path).stem)
-        # txt_filename = filepath + "/" + str(pathlib.Path(_l.path).stem) + ".txt"
-
-        # if str(pathlib.Path(_l.path).stem) == "":
-        #     txt_filename = filepath + _l.hostname + ".txt"
-
-        print("%%%", file_save_path)
         with open(file_save_path, "w") as f:
             f.write(text)
 
-        print("****************************************")
-        print("****************************************")
     except Exception as e:
         ic(e)
-
