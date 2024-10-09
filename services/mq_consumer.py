@@ -13,7 +13,10 @@ class Listener(stomp.ConnectionListener):
         self.conn = conn
 
     def on_error(self, frame):
-        print('received an error "%s"' % frame)
+        # AMQ229014 is the error code for disconnection after 60 seconds timeout.
+        # if we encounter this error, ignore it
+        if not frame.headers["message"].startswith("AMQ229014"):
+            print('received an error "%s"' % frame)
 
     def on_message(self, frame):
         print('received a message "%s"' % frame)
@@ -45,7 +48,6 @@ class MessageBroker:
             self.connection.connect(
                 config.ACTIVEMQ_USER, config.ACTIVEMQ_PASSCODE, wait=True
             )
-            # connect_and_subscribe(self.connection)
         else:
             raise Exception("You cannot create another MessageBroker class")
 
