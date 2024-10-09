@@ -22,11 +22,15 @@ class AppConfig:
             self.ACTIVEMQ_PORT = int(os.getenv("ACTIVEMQ_PORT", "61613"))
             self.ACTIVEMQ_USER = os.getenv("ACTIVEMQ_USER", "artemis")
             self.ACTIVEMQ_PASSCODE = os.getenv("ACTIVEMQ_PASSCODE", "artemis")
-            self.AQ_DEFAULT_QUEUE_SUB = os.getenv(
+            self.AQ_SCRAPE_QUEUE_SUB = os.getenv(
                 "AQ_DEFAULT_QUEUE_CONSUMER", "queue_begin_scrape"
             )
-            self.AQ_DEFAULT_QUEUE_PUB = os.getenv(
-                "AQ_DEFAULT_QUEUE", "queue_scrape_update"
+            self.AQ_RAG_INGEST_QUEUE_SUB = os.getenv(
+                "AQ_RAG_INGEST_QUEUE_SUB", "queue_begin_rag_ingest"
+            )
+
+            self.AQ_SCRAPE_QUEUE_PUB = os.getenv(
+                "AQ_SCRAPE_QUEUE", "queue_scrape_update"
             )
 
         else:
