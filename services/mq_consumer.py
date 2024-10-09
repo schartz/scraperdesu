@@ -20,10 +20,14 @@ class Listener(stomp.ConnectionListener):
             print('received an error "%s"' % frame)
 
     def on_message(self, frame):
-        msg = AMQMessage(**json.loads(frame.body))
-        if msg.message_type == 1:
-            payload = ScrapeMessagePayload(**msg.payload)
-            asyncio.run(scrap_the_website(payload.website_url))
+        try:
+            msg = AMQMessage(**json.loads(frame.body))
+            if msg.message_type == 1:
+                payload = ScrapeMessagePayload(**msg.payload)
+                asyncio.run(scrap_the_website(payload.website_url))
+        except Exception as e:
+            ic("error", e)
+        ic("ready for next message")
 
     def on_disconnected(self):
         self.conn.connect(config.ACTIVEMQ_USER, config.ACTIVEMQ_PASSCODE, wait=True)
@@ -35,7 +39,7 @@ class Listener(stomp.ConnectionListener):
         for q in queues:
             self.conn.subscribe(
                 destination=q,
-                id="1",
+                id=q,
                 ack="auto",
                 headers={"persistent": "true", "routing_key": q},
             )
@@ -68,7 +72,7 @@ class MessageBroker:
         for q in queues:
             self.connection.subscribe(
                 destination=q,
-                id="1",
+                id=q,
                 ack="auto",
                 headers={"persistent": "true", "routing_key": q},
             )
