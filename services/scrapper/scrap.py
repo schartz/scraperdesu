@@ -7,6 +7,8 @@ from urllib.parse import urlparse
 from playwright.async_api import async_playwright
 
 from config import AppConfig
+from models.schemas import ScrapeUpdateMessage, ScrapeUpdateMessagePayload
+from services.mq_publisher import ActiveMQPublisher
 from utils.helpers import loop_batched
 
 config = AppConfig.get_config()
@@ -34,8 +36,11 @@ async def scrap_the_website(url: str = ""):
                 link_urls.append(link.scheme + "://" + link.hostname + link.path)
 
         link_urls = list(set(link_urls))
+        total_pages = len(link_urls)
+        scraped_pages = 0
 
         for link_batch in loop_batched(link_urls):
+            scraped_pages += len(link_batch)
             async with asyncio.TaskGroup() as tg:
                 for link in link_batch:
                     _l = urlparse(link)
@@ -48,6 +53,12 @@ async def scrap_the_website(url: str = ""):
                         txt_filename = filepath + _l.hostname + ".txt"
 
                     _ = tg.create_task(scrape_page(browser, link, txt_filename))
+            update_message = ScrapeUpdateMessagePayload(
+                total_pages=total_pages,
+                scraped_pages=scraped_pages,
+                is_done=scraped_pages == total_pages,
+            )
+            await send_scrape_update(update_message)
 
         await browser.close()
         ic("scraping complete")
@@ -72,3 +83,10 @@ async def scrape_page(
 
     except Exception as e:
         ic(e)
+
+
+async def send_scrape_update(msg: ScrapeUpdateMessagePayload):
+    _msg = ScrapeUpdateMessage(payload=msg)
+
+    mq_publisher = ActiveMQPublisher.get_mq_connection()
+    mq_publisher.publish(_msg.model_dump(), config.AQ_SCRAPE_QUEUE_PUB)

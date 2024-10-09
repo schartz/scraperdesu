@@ -1,8 +1,8 @@
 import json
 import os
 import time
-from typing import Union
 import stomp
+from icecream import ic
 
 from config import AppConfig
 
@@ -37,7 +37,7 @@ class ActiveMQPublisher(stomp.ConnectionListener):
             },
         )
 
-        print(f"published message on---> {routing_key}")
+        ic(f"published message on---> {routing_key}")
         time.sleep(2)
         self.activemq_conn.disconnect()
 

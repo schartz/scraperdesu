@@ -1,1 +1,6 @@
-from .schemas import AMQMessage, ScrapeMessagePayload
+from .schemas import (
+    AMQMessage,
+    ScrapeMessagePayload,
+    RAGIngestMessagePayload,
+    ScrapeUpdateMessage,
+)

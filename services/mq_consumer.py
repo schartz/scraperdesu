@@ -3,6 +3,7 @@ import stomp
 from icecream import ic
 from config import AppConfig
 from models import AMQMessage, ScrapeMessagePayload
+from models.schemas import RAGIngestMessagePayload
 from services.scrapper.scrap import scrap_the_website
 import json
 
@@ -25,16 +26,14 @@ class Listener(stomp.ConnectionListener):
             if msg.message_type == 1:
                 payload = ScrapeMessagePayload(**msg.payload)
                 asyncio.run(scrap_the_website(payload.website_url))
+
         except Exception as e:
             ic("error", e)
         ic("ready for next message")
 
     def on_disconnected(self):
         self.conn.connect(config.ACTIVEMQ_USER, config.ACTIVEMQ_PASSCODE, wait=True)
-        queues = [
-            config.AQ_SCRAPE_QUEUE_SUB,
-            config.AQ_RAG_INGEST_QUEUE_SUB,
-        ]
+        queues = [config.AQ_SCRAPE_QUEUE_SUB]
 
         for q in queues:
             self.conn.subscribe(
@@ -64,10 +63,7 @@ class MessageBroker:
             raise Exception("You cannot create another MessageBroker class")
 
     def subscribe_queue(self):
-        queues = [
-            config.AQ_SCRAPE_QUEUE_SUB,
-            config.AQ_RAG_INGEST_QUEUE_SUB,
-        ]
+        queues = [config.AQ_SCRAPE_QUEUE_SUB]
 
         for q in queues:
             self.connection.subscribe(
