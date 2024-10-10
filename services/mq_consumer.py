@@ -1,6 +1,6 @@
 import asyncio
 import stomp
-from icecream import ic
+from loguru import logger
 from config import AppConfig
 from models import AMQMessage, ScrapeMessagePayload
 from models.schemas import RAGIngestMessagePayload
@@ -28,8 +28,8 @@ class Listener(stomp.ConnectionListener):
                 asyncio.run(scrap_the_website(payload.website_url))
 
         except Exception as e:
-            ic("error", e)
-        ic("ready for next message")
+            logger.info("error", e)
+        logger.info("ready for next message")
 
     def on_disconnected(self):
         self.conn.connect(config.ACTIVEMQ_USER, config.ACTIVEMQ_PASSCODE, wait=True)

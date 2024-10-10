@@ -1,5 +1,5 @@
 import asyncio
-from icecream import ic
+from loguru import logger
 import traceback
 
 from services.mq_consumer import MessageBroker
@@ -20,4 +20,4 @@ if __name__ == "__main__":
         loop.run_forever()
     except Exception as e:
         traceback.print_exc()
-        ic(e)
+        logger.info(e)

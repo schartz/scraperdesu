@@ -1,6 +1,6 @@
 import os
 import asyncio
-from icecream import ic
+from loguru import logger
 import pathlib
 from urllib.parse import urlparse
 
@@ -62,7 +62,7 @@ async def scrap_the_website(url: str = ""):
             await send_scrape_update(update_message)
 
         await browser.close()
-        ic("scraping complete")
+        logger.info("scraping complete")
 
 
 async def scrape_page(
@@ -84,7 +84,7 @@ async def scrape_page(
         await page.close()
 
     except Exception as e:
-        ic(e)
+        logger.info(e)
 
 
 async def send_scrape_update(msg: ScrapeUpdateMessagePayload):
