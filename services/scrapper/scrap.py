@@ -57,6 +57,7 @@ async def scrap_the_website(url: str = ""):
                 total_pages=total_pages,
                 scraped_pages=scraped_pages,
                 is_done=scraped_pages == total_pages,
+                website_url=url,
             )
             await send_scrape_update(update_message)
 
@@ -73,6 +74,7 @@ async def scrape_page(
         a_handle = await page.evaluate_handle("document.body")
         result_handle = await page.evaluate_handle("body => body.innerText", a_handle)
         text = await result_handle.json_value()
+        text = f"{page_url}\n\n{text}"
         with open(file_save_path, "w") as f:
             f.write(text)
         if save_screenshot:
