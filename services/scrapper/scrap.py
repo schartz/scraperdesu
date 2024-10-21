@@ -14,7 +14,7 @@ from utils.helpers import loop_batched
 config = AppConfig.get_config()
 
 
-async def scrap_the_website(url: str = ""):
+async def scrap_the_website(url: str = "", uid: str = "-1", cid: str = ""):
     async with async_playwright() as p:
         browser = await p.chromium.launch()
         page = await browser.new_page()
@@ -54,6 +54,8 @@ async def scrap_the_website(url: str = ""):
 
                     _ = tg.create_task(scrape_page(browser, link, txt_filename))
             update_message = ScrapeUpdateMessagePayload(
+                company_id=cid,
+                user_id=uid,
                 total_pages=total_pages,
                 scraped_pages=scraped_pages,
                 is_done=scraped_pages == total_pages,

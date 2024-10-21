@@ -25,7 +25,12 @@ class Listener(stomp.ConnectionListener):
             msg = AMQMessage(**json.loads(frame.body))
             if msg.message_type == 1:
                 payload = ScrapeMessagePayload(**msg.payload)
-                asyncio.run(scrap_the_website(payload.website_url))
+                print(payload)
+                asyncio.run(
+                    scrap_the_website(
+                        payload.website_url, payload.user_id, payload.company_id
+                    )
+                )
 
         except Exception as e:
             logger.info("error", e)
