@@ -25,7 +25,6 @@ class ActiveMQPublisher(stomp.ConnectionListener):
 
     def publish(self, msg: dict, routing_key: str = ""):
         message = json.dumps(msg, indent=2, ensure_ascii=False)
-        # print(message)
         self.ensure_connection()
         self.activemq_conn.send(
             body=message,
